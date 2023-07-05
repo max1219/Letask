@@ -13,6 +13,7 @@ def check_registered_asked_filter(message: Message) -> bool:
     return message.text and message.text.isdigit() and database.get_user(int(message.text)) is not None
 
 
-def check_answer_filter(message: Message) -> dict[Literal['question'], Question] | None:
-    if message.reply_to_message and message.reply_to_message.message_id in database.get_user(message.from_user.id).questions:
+def check_reply_is_question_filter(message: Message) -> dict[Literal['question'], Question] | None:
+    if message.reply_to_message and message.reply_to_message.message_id in \
+            database.get_user(message.from_user.id).questions:
         return dict(question=database.get_user(message.from_user.id).questions[message.reply_to_message.message_id])

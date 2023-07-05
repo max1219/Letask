@@ -9,5 +9,5 @@ def get_user(user_id: int) -> UserRecord | None:
 
 
 def add_user(user_id: int):
-    _users[user_id] = UserRecord(user_id)
+    _users[user_id] = UserRecord(user_id, dict())
 

@@ -15,7 +15,8 @@ ANSWERS: dict[str, str] = {
     'success_answer': 'Ответ успешно отправлен',
     'new_question': 'Вам пришел новый вопрос:\n',
     'new_answer': 'Вам пришел ответ:\n',
-    'your_id': 'Ваш id: '
+    'your_id': 'Ваш id: ',
+    'not_have_questions': 'У вас нет ни одного неотвеченного вопроса'
 }
 
 BUTTONS: dict[str, str] = {

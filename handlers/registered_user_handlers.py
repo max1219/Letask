@@ -9,38 +9,37 @@ from states.states import AskingStates
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 
-
-router = Router()
+router: Router = Router()
 router.message.filter(check_registered_sender_filter, StateFilter(default_state))
 
 
 @router.message(Command('start', 'help'))
-async def process_start_help(message: Message):
+async def process_start_help(message: Message) -> None:
     await message.answer(lexicon.ANSWERS['help'])
 
 
 @router.message(Command('id'))
-async def process_get_id(message: Message):
+async def process_get_id(message: Message) -> None:
     await message.answer(lexicon.ANSWERS['your_id'] + str(message.from_user.id))
 
 
 @router.message(F.text == lexicon.BUTTONS['aks'])
-async def process_ask(message: Message, state: FSMContext):
+async def process_ask(message: Message, state: FSMContext) -> None:
     await state.set_state(AskingStates.fill_id)
     await message.answer(lexicon.ANSWERS['write_id'], reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(F.text == lexicon.BUTTONS['my_questions'])
-async def process_my_questions(message: Message, bot: Bot):
+async def process_my_questions(message: Message, bot: Bot) -> None:
     await quests_answers_sender.resend_questions(bot, message.from_user.id)
 
 
 @router.message(check_reply_is_question_filter)
-async def handle_answering(message: Message, question: Question):
-    await quests_answers_sender.send_answer(message, question)
+async def handle_answering(message: Message, bot: Bot, question: Question) -> None:
+    await quests_answers_sender.send_answer(bot, message, question)
     await message.answer(lexicon.ANSWERS['success_answer'])
 
 
 @router.message()
-async def handle_unknown_message(message: Message):
+async def handle_unknown_message(message: Message) -> None:
     await message.answer(lexicon.ANSWERS['unknown'])

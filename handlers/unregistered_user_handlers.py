@@ -13,11 +13,11 @@ router.message.filter(lambda message: not check_registered_sender_filter(message
 
 
 @router.message(CommandStart())
-async def process_start(message: Message):
-    database.add_user(message.from_user.id)
+async def process_start(message: Message) -> None:
+    database.add_user(message.chat.id)
     await message.answer(lexicon.ANSWERS['greet'] + str(message.from_user.id), reply_markup=menu_kb)
 
 
 @router.message()
-async def other(message: Message):
+async def other(message: Message) -> None:
     await message.answer(lexicon.ANSWERS['not_registered'])

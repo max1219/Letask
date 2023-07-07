@@ -7,5 +7,5 @@ class AskingStates(StatesGroup):
     confirming = State()
 
     @classmethod
-    def get_states(cls):
+    def get_states(cls) -> tuple[State, ...]:
         return cls.fill_id, cls.fill_text, cls.confirming

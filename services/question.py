@@ -1,11 +1,12 @@
-from dataclasses import dataclass, field
 from aiogram.types import Message
 
 
-@dataclass
 class Question:
-    questioner_message: Message = field(hash=False)
-    recipient_message: Message = field(hash=False)
+    __slots__ = 'text', 'questioner_message_id', 'questioner_chat_id', 'recipient_message_id', 'recipient_chat_id'
 
-    def __hash__(self):
-        return hash((self.questioner_message.from_user.id, self.recipient_message.from_user.id))
+    def __init__(self, questioner_message: Message, recipient_message: Message) -> None:
+        self.text = recipient_message.text
+        self.questioner_message_id = questioner_message.message_id
+        self.questioner_chat_id = questioner_message.chat.id
+        self.recipient_message_id = recipient_message.message_id
+        self.recipient_chat_id = recipient_message.chat.id

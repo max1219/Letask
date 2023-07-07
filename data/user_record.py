@@ -5,4 +5,4 @@ from services.question import Question
 @dataclass
 class UserRecord:
     user_id: int
-    questions: dict[int, Question]
+    questions: list[Question]

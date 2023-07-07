@@ -5,7 +5,7 @@ from handlers import registered_user_handlers, unregistered_user_handlers, askin
 from aiogram.fsm.storage.memory import MemoryStorage
 
 
-async def main():
+async def main() -> None:
     config: Config = load_config()
     storage: MemoryStorage = MemoryStorage()
 

@@ -27,7 +27,6 @@ async def resend_questions(bot: Bot, user_id):
         return
     for message_id, question in questions.items():
         text = question.recipient_message.text
-        await question.recipient_message.delete()
         new_message = await bot.send_message(user_id, text)
         new_questions[new_message.message_id] = Question(questions[message_id].questioner_message, new_message)
     user.questions = new_questions

@@ -1,30 +1,35 @@
-from aiogram import Router, Bot
+from aiogram import Router, Bot, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import StateFilter
-from data.database_filters import check_registered_asked_filter
 from lexicon import lexicon
 from states.states import AskingStates
 from aiogram.fsm.context import FSMContext
 from keyboards import keyboards
 from services import quests_answers_sender
 from keyboards.keyboards import menu_kb
+from data import database
 
 
 router: Router = Router()
 router.message.filter(StateFilter(*AskingStates.get_states()))
 
 
-@router.message(StateFilter(AskingStates.fill_id), check_registered_asked_filter)
+@router.message(StateFilter(AskingStates.fill_id), F.text & F.text.isdigit())
 async def fill_id(message: Message, state: FSMContext) -> None:
-    await state.set_state(AskingStates.fill_text)
-    await state.update_data(id=message.text)
-    await message.answer(lexicon.ANSWERS['write_text'])
+    asked_id = int(message.text)
+    if await database.check_user_registered(asked_id):
+        await state.set_state(AskingStates.fill_text)
+        await state.update_data(id=message.text)
+        await message.answer(lexicon.ANSWERS['write_text'])
+    else:
+        await state.clear()
+        await message.answer(lexicon.ANSWERS['id_not_found'], reply_markup=menu_kb)
 
 
 @router.message(StateFilter(AskingStates.fill_id))
 async def wrong_id(message: Message, state: FSMContext) -> None:
     await state.clear()
-    await message.answer(lexicon.ANSWERS['wrong_id'], reply_markup=menu_kb)
+    await message.answer(lexicon.ANSWERS['wrong_id_format'], reply_markup=menu_kb)
 
 
 @router.message(StateFilter(AskingStates.fill_text))

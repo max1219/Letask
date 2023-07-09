@@ -1,4 +1,4 @@
-from environs import Env
+import os
 from dataclasses import dataclass
 
 
@@ -13,6 +13,5 @@ class Config:
 
 
 def load_config(path: str | None = None) -> Config:
-    env = Env()
-    env.read_env(path)
-    return Config(bot=TgBot(env('BOT_TOKEN')))
+    token = os.environ["BOT_TOKEN"]
+    return Config(bot=TgBot(token))

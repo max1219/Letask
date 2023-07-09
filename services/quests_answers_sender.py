@@ -7,7 +7,7 @@ from aiogram.types import Message
 
 async def send_question(bot: Bot, id_for: int, text: str, questioner_message: Message) -> None:
     recipient_message = await bot.send_message(id_for, lexicon.ANSWERS['new_question'] + text)
-    question = Question(questioner_message, recipient_message)
+    question = Question.from_messages(questioner_message, recipient_message)
     await database.add_question(question)
 
 
@@ -22,11 +22,14 @@ async def send_answer(bot: Bot, message: Message, question: Question) -> None:
 
 async def resend_questions(bot: Bot, user_id: int) -> None:
     questions: list[Question] = await database.get_user_questions(user_id)
+    last_ids: list[int] = list()
+    new_ids: list[int] = list()
     if len(questions) == 0:
         await bot.send_message(user_id, lexicon.ANSWERS['not_have_questions'])
         return
     for question in questions:
+        last_ids.append(question.recipient_message_id)
         new_message = await bot.send_message(user_id, question.text)
         question.recipient_message_id = new_message.message_id
-
-    await database.update_user_questions(user_id, questions)
+        new_ids.append(question.recipient_message_id)
+        await database.change_recipient_message_ids(user_id, last_ids, new_ids)

@@ -1,6 +1,8 @@
 from aiogram import Router, F, Bot
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.filters import Command, StateFilter
+
+from keyboards.keyboards import menu_kb
 from services import quests_answers_sender
 from data import database_processor
 from lexicon import lexicon
@@ -15,12 +17,12 @@ router.message.filter(StateFilter(default_state))
 
 @router.message(Command('start', 'help'))
 async def process_start_help(message: Message) -> None:
-    await message.answer(lexicon.ANSWERS['help'])
+    await message.answer(lexicon.ANSWERS['help'], reply_markup=menu_kb)
 
 
 @router.message(Command('id'))
 async def process_get_id(message: Message) -> None:
-    await message.answer(lexicon.ANSWERS['your_id'] + str(message.from_user.id))
+    await message.answer(lexicon.ANSWERS['your_id'] + str(message.from_user.id), reply_markup=menu_kb)
 
 
 @router.message(F.text == lexicon.BUTTONS['aks'])

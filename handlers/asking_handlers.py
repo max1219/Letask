@@ -9,7 +9,6 @@ from services import quests_answers_sender
 from keyboards.keyboards import menu_kb
 from data import database
 
-
 router: Router = Router()
 router.message.filter(StateFilter(*AskingStates.get_states()))
 
@@ -51,7 +50,9 @@ async def wrong_answer(message: Message) -> None:
 async def confirm(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     if callback.data == 'confirm_send':
         id_text_dict = await state.get_data()
-        await quests_answers_sender.send_question(bot, int(id_text_dict['id']), id_text_dict['text'], callback.message)
-        await callback.message.answer(lexicon.ANSWERS['success_question'], reply_markup=menu_kb)
+        is_success = await quests_answers_sender.send_question(bot, int(id_text_dict['id']), id_text_dict['text'],
+                                                               callback.message)
+        await callback.message.answer(lexicon.ANSWERS['success_question' if is_success else 'cant_ask'],
+                                      reply_markup=menu_kb)
     await callback.message.delete_reply_markup()
     await state.clear()

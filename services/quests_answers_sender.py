@@ -3,21 +3,30 @@ from data import database
 from lexicon import lexicon
 from services.question import Question
 from aiogram.types import Message
+from aiogram.exceptions import TelegramForbiddenError
 
 
-async def send_question(bot: Bot, id_for: int, text: str, questioner_message: Message) -> None:
-    recipient_message = await bot.send_message(id_for, lexicon.ANSWERS['new_question'] + text)
+async def send_question(bot: Bot, id_for: int, text: str, questioner_message: Message) -> bool:
+    try:
+        recipient_message = await bot.send_message(id_for, lexicon.ANSWERS['new_question'] + text)
+    except TelegramForbiddenError:
+        return False
     question = Question.from_messages(questioner_message, recipient_message)
     await database.add_question(question)
+    return True
 
 
-async def send_answer(bot: Bot, message: Message, question: Question) -> None:
-    await bot.send_message(
-        chat_id=question.questioner_chat_id,
-        text=lexicon.ANSWERS['new_answer'] + message.text,
-        reply_to_message_id=question.questioner_message_id
-    )
+async def send_answer(bot: Bot, message: Message, question: Question) -> bool:
+    try:
+        await bot.send_message(
+            chat_id=question.questioner_chat_id,
+            text=lexicon.ANSWERS['new_answer'] + message.text,
+            reply_to_message_id=question.questioner_message_id
+        )
+    except TelegramForbiddenError:
+        return False
     await database.remove_question(question)
+    return True
 
 
 async def resend_questions(bot: Bot, user_id: int) -> None:

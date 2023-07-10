@@ -13,37 +13,38 @@ router: Router = Router()
 router.message.filter(StateFilter(*AskingStates.get_states()))
 
 
-@router.message(StateFilter(AskingStates.fill_id), F.text & F.text.isdigit())
-async def fill_id(message: Message, state: FSMContext) -> None:
-    asked_id = int(message.text)
-    if asked_id == message.from_user.id:
+@router.message(StateFilter(AskingStates.fill_username), F.text.startswith('@'))
+async def fill_username(message: Message, state: FSMContext) -> None:
+    username: str = message.text.lower()
+    if username[1:] == message.from_user.username:
         await message.answer_photo(photo=lexicon.PHOTOS['dont_ask_yourself'],
                                    caption=lexicon.ANSWERS['dont_ask_yourself'],
                                    reply_markup=menu_kb)
         await state.clear()
         return
-    if await database.check_user_id_registered(asked_id):
+    if await database.check_username_registered(username[1:]):
         await state.set_state(AskingStates.fill_text)
-        await state.update_data(id=message.text)
+        await state.update_data(username=username)
         await message.answer(lexicon.ANSWERS['write_text'])
     else:
         await state.clear()
-        await message.answer(lexicon.ANSWERS['id_not_found'], reply_markup=menu_kb)
+        await message.answer(lexicon.ANSWERS['user_not_found'], reply_markup=menu_kb)
 
 
-@router.message(StateFilter(AskingStates.fill_id))
-async def wrong_id(message: Message, state: FSMContext) -> None:
+@router.message(StateFilter(AskingStates.fill_username))
+async def wrong_username_format(message: Message, state: FSMContext) -> None:
     await state.clear()
-    await message.answer(lexicon.ANSWERS['wrong_id_format'], reply_markup=menu_kb)
+    await message.answer(lexicon.ANSWERS['wrong_username_format'], reply_markup=menu_kb)
 
 
 @router.message(StateFilter(AskingStates.fill_text))
 async def fill_text(message: Message, state: FSMContext) -> None:
     await state.set_state(AskingStates.confirming)
     await state.update_data(text=message.text)
-    id_text_dict: dict = await state.get_data()
-    question_text, user_id = id_text_dict['text'], id_text_dict['id']
-    answer_text = user_id + '\n' + question_text + '\n' + lexicon.ANSWERS['check_again']
+    username_text_dict: dict = await state.get_data()
+    question_text = username_text_dict['text']
+    username = username_text_dict['username']
+    answer_text = username + '\n' + question_text + '\n' + lexicon.ANSWERS['check_again']
     await message.answer(answer_text, reply_markup=keyboards.yes_no_inline_kb)
 
 
@@ -55,8 +56,11 @@ async def wrong_answer(message: Message) -> None:
 @router.callback_query(StateFilter(AskingStates.confirming))
 async def confirm(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     if callback.data == 'confirm_send':
-        id_text_dict = await state.get_data()
-        is_success = await quests_answers_sender.send_question(bot, int(id_text_dict['id']), id_text_dict['text'],
+        username_text_dict: dict = await state.get_data()
+        question_text = username_text_dict['text']
+        username = username_text_dict['username']
+        user_id = await database.get_user_id(username[1:])
+        is_success = await quests_answers_sender.send_question(bot, user_id, question_text,
                                                                callback.message)
         await callback.message.answer(lexicon.ANSWERS['success_question' if is_success else 'cant_ask'],
                                       reply_markup=menu_kb)

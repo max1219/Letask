@@ -6,9 +6,9 @@ from aiogram.types import Message
 from aiogram.exceptions import TelegramForbiddenError
 
 
-async def send_question(bot: Bot, id_for: int, text: str, questioner_message: Message) -> bool:
+async def send_question(bot: Bot, user_id: int, text: str, questioner_message: Message) -> bool:
     try:
-        recipient_message = await bot.send_message(id_for, lexicon.ANSWERS['new_question'] + text)
+        recipient_message = await bot.send_message(user_id, lexicon.ANSWERS['new_question'] + text)
     except TelegramForbiddenError:
         return False
     question = Question.from_messages(questioner_message, recipient_message)

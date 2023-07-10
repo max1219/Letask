@@ -20,15 +20,10 @@ async def process_start_help(message: Message) -> None:
     await message.answer(lexicon.ANSWERS['help'], reply_markup=menu_kb)
 
 
-@router.message(Command('id'))
-async def process_get_id(message: Message) -> None:
-    await message.answer(lexicon.ANSWERS['your_id'] + str(message.from_user.id), reply_markup=menu_kb)
-
-
 @router.message(F.text == lexicon.BUTTONS['aks'])
 async def process_ask(message: Message, state: FSMContext) -> None:
-    await state.set_state(AskingStates.fill_id)
-    await message.answer(lexicon.ANSWERS['write_id'], reply_markup=ReplyKeyboardRemove())
+    await state.set_state(AskingStates.fill_username)
+    await message.answer(lexicon.ANSWERS['write_recipient'], reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(F.text == lexicon.BUTTONS['my_questions'])

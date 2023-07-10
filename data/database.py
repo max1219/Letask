@@ -48,8 +48,13 @@ async def remove_question(question: Question) -> None:
     await _set_raw_questions(question.recipient_chat_id, raw_questions)
 
 
+async def get_user_id(username: str) -> int:
+    cur.execute("SELECT user_id FROM data WHERE username=?", (username,))
+    return cur.fetchone()[0]
+
+
 async def _get_raw_questions(user_id: int) -> list[list[int | str]]:
-    cur.execute(f"SELECT questions FROM data WHERE user_id=?", (user_id,))
+    cur.execute("SELECT questions FROM data WHERE user_id=?", (user_id,))
     string = cur.fetchone()[0]
     if string:
         return json.loads(string)

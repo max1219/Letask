@@ -35,5 +35,5 @@ BUTTONS: dict[str, str] = {
 }
 
 PHOTOS: dict[str, str] = {
-    'dont_ask_yourself': 'AgACAgIAAxkBAANQZKu4DUg8WWCc62bwKOwZGTPYN04AAkbaMRvBCFlJ7xh-HCWdJZYBAAMCAAN5AAMvBA'
+    'dont_ask_yourself': 'https://sun9-39.userapi.com/impg/WFBhl1rwOM48CsCAVkr8doU_49YsYvuhN8OrYQ/Jr_9bJGacSU.jpg?size=1280x720&quality=96&sign=9f52defd30f8e485edc5bab1a3a24bc2&c_uniq_tag=zZ9VJ_v7NEquNct2_M81R-Vk8IaXr9WOMf3E1q1pas0&type=album'
 }

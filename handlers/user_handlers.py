@@ -20,6 +20,11 @@ async def process_start_help(message: Message) -> None:
     await message.answer(lexicon.ANSWERS['help'], reply_markup=menu_kb)
 
 
+@router.message(Command('rules'))
+async def process_start_help(message: Message) -> None:
+    await message.answer(lexicon.ANSWERS['rules'], reply_markup=menu_kb)
+
+
 @router.message(F.text == lexicon.BUTTONS['aks'])
 async def process_ask(message: Message, state: FSMContext) -> None:
     await state.set_state(AskingStates.fill_username)

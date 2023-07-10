@@ -16,7 +16,7 @@ router.message.filter(StateFilter(*AskingStates.get_states()))
 @router.message(StateFilter(AskingStates.fill_id), F.text & F.text.isdigit())
 async def fill_id(message: Message, state: FSMContext) -> None:
     asked_id = int(message.text)
-    if await database.check_user_registered(asked_id):
+    if await database.check_user_id_registered(asked_id):
         await state.set_state(AskingStates.fill_text)
         await state.update_data(id=message.text)
         await message.answer(lexicon.ANSWERS['write_text'])

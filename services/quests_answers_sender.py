@@ -30,15 +30,13 @@ async def send_answer(bot: Bot, message: Message, question: Question) -> bool:
 
 
 async def resend_questions(bot: Bot, user_id: int) -> None:
-    questions: list[Question] = await database.get_user_questions(user_id)
-    last_ids: list[int] = list()
-    new_ids: list[int] = list()
+    questions: tuple[Question] = await database.get_user_questions(user_id)
+    new_questions: list[Question] = list()
     if len(questions) == 0:
         await bot.send_message(user_id, lexicon.ANSWERS['not_have_questions'])
         return
     for question in questions:
-        last_ids.append(question.recipient_message_id)
         new_message = await bot.send_message(user_id, question.text)
         question.recipient_message_id = new_message.message_id
-        new_ids.append(question.recipient_message_id)
-        await database.change_recipient_message_ids(user_id, last_ids, new_ids)
+        new_questions.append(question)
+    await database.update_questions(user_id, new_questions)

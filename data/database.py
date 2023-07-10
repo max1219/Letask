@@ -1,55 +1,63 @@
-from data.user_record import UserRecord
 from services.question import Question
 import sqlite3
+import json
+
 
 base = sqlite3.connect('data.db')
 cur = base.cursor()
 
 
-def _get_table_name(user_id: int) -> str:
-    return 'id' + str(user_id)
+cur.execute("CREATE TABLE IF NOT EXISTS data(user_id INTEGER, username TEXT, questions TEXT)")
+base.commit()
 
 
-async def check_user_registered(user_id: int) -> bool:
-    cur.execute("SELECT count() FROM sqlite_master WHERE type='table' AND name=?", (_get_table_name(user_id),))
+async def check_user_id_registered(user_id: int) -> bool:
+    cur.execute("SELECT count() FROM data WHERE user_id=?", (user_id,))
     return cur.fetchone()[0] != 0
 
 
-async def add_user(user_id: int) -> None:
-    cur.execute(f"CREATE TABLE {_get_table_name(user_id)}("
-                "question_text TEXT,"
-                "questioner_message_id INTEGER,"
-                "questioner_chat_id INTEGER,"
-                "recipient_message_id INTEGER,"
-                "recipient_chat_id INTEGER)")
+async def check_username_registered(username: str) -> bool:
+    cur.execute("SELECT count() FROM data WHERE username=?", (username,))
+    return cur.fetchone()[0] != 0
+
+
+async def add_user(user_id: int, username: str) -> None:
+    cur.execute("INSERT into data VALUES (?, ?, '')", (user_id, username))
     base.commit()
 
 
-async def get_user_questions(user_id: int) -> list[Question]:
-    cur.execute(f"SELECT * from {_get_table_name(user_id)}")
-    questions: list[Question] = list()
-    for line in cur:
-        questions.append(Question(*line))
-    return questions
+async def get_user_questions(user_id: int) -> tuple[Question]:
+    raw_questions: list[list[int | str]] = await _get_raw_questions(user_id)
+    return tuple(map(Question.from_array, raw_questions))
 
 
-async def change_recipient_message_ids(user_id: int, last_ids: list[int], new_ids: list[int]) -> None:
-    pairs = zip(new_ids, last_ids)
-    cur.executemany(f"UPDATE {_get_table_name(user_id)} SET recipient_message_id=? WHERE recipient_message_id=?", pairs)
-    base.commit()
+async def update_questions(user_id: int, questions: list[Question]) -> None:
+    raw_questions: list[list[int | str]] = list(map(Question.to_array, questions))
+    await _set_raw_questions(user_id, raw_questions)
 
 
 async def add_question(question: Question) -> None:
-    cur.execute(f"INSERT INTO {_get_table_name(question.recipient_chat_id)} VALUES(?, ?, ?, ?, ?)",
-                (question.text,
-                 question.questioner_message_id,
-                 question.questioner_chat_id,
-                 question.recipient_message_id,
-                 question.recipient_chat_id))
-    base.commit()
+    raw_questions: list[list[int | str]] = await _get_raw_questions(question.recipient_chat_id)
+    raw_questions.append(question.to_array())
+    await _set_raw_questions(question.recipient_chat_id, raw_questions)
 
 
 async def remove_question(question: Question) -> None:
-    cur.execute(f"DELETE FROM {_get_table_name(question.recipient_chat_id)} "
-                f"WHERE questioner_message_id=?", (question.questioner_message_id,))
+    raw_questions: list[list[int | str]] = await _get_raw_questions(question.recipient_chat_id)
+    raw_questions.remove(question.to_array())
+    await _set_raw_questions(question.recipient_chat_id, raw_questions)
+
+
+async def _get_raw_questions(user_id: int) -> list[list[int | str]]:
+    cur.execute(f"SELECT questions FROM data WHERE user_id=?", (user_id,))
+    string = cur.fetchone()[0]
+    if string:
+        return json.loads(string)
+    return list()
+
+
+async def _set_raw_questions(user_id: int, raw_questions: list[list[int | str]]) -> None:
+    string = json.dumps(raw_questions)
+    cur.execute("UPDATE data SET questions=? WHERE user_id=?", (string, user_id))
     base.commit()
+

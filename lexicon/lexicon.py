@@ -20,7 +20,8 @@ ANSWERS: dict[str, str] = {
     'not_have_questions': 'У вас нет ни одного неотвеченного вопроса',
     'is_not_question': 'Выделенное сообщение не является вопросом, или данный вопрос был отправлен еще раз после '
                        'нажатия на "Мои вопросы" (выделять нужно последнюю полученную копию)',
-    'cant_ask': 'Не удалось отправить вопрос. Возможно, пользователь отправил бота в бан'
+    'cant_ask': 'Не удалось отправить вопрос. Возможно, пользователь отправил бота в бан',
+    'dont_ask_yourself': 'Ты понимаешь, что хочешь задать вопрос самому себе?'
 }
 
 BUTTONS: dict[str, str] = {
@@ -29,4 +30,8 @@ BUTTONS: dict[str, str] = {
     'yes': 'Да',
     'no': 'Нет',
     'close': 'Отменить'
+}
+
+PHOTOS: dict[str, str] = {
+    'dont_ask_yourself': 'AgACAgIAAxkBAANQZKu4DUg8WWCc62bwKOwZGTPYN04AAkbaMRvBCFlJ7xh-HCWdJZYBAAMCAAN5AAMvBA'
 }

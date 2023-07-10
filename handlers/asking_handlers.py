@@ -16,6 +16,12 @@ router.message.filter(StateFilter(*AskingStates.get_states()))
 @router.message(StateFilter(AskingStates.fill_id), F.text & F.text.isdigit())
 async def fill_id(message: Message, state: FSMContext) -> None:
     asked_id = int(message.text)
+    if asked_id == message.from_user.id:
+        await message.answer_photo(photo=lexicon.PHOTOS['dont_ask_yourself'],
+                                   caption=lexicon.ANSWERS['dont_ask_yourself'],
+                                   reply_markup=menu_kb)
+        await state.clear()
+        return
     if await database.check_user_id_registered(asked_id):
         await state.set_state(AskingStates.fill_text)
         await state.update_data(id=message.text)

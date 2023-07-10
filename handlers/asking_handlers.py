@@ -65,4 +65,5 @@ async def confirm(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
         await callback.message.answer(lexicon.ANSWERS['success_question' if is_success else 'cant_ask'],
                                       reply_markup=menu_kb)
     await callback.message.delete_reply_markup()
+    await callback.message.answer(text=lexicon.ANSWERS['ok_dont_send'], reply_markup=menu_kb)
     await state.clear()

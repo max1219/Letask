@@ -3,7 +3,7 @@ import sqlite3
 import json
 
 
-base = sqlite3.connect('data_with_set.db')
+base = sqlite3.connect('data.db')
 cur = base.cursor()
 user_ids: set[int] = set() # Check test_db.py
 
@@ -11,6 +11,8 @@ user_ids: set[int] = set() # Check test_db.py
 cur.execute("CREATE TABLE IF NOT EXISTS data(user_id INTEGER, username TEXT, questions TEXT)")
 base.commit()
 
+for user_id, in cur.execute("SELECT user_id FROM data"):
+    user_ids.add(user_id)
 
 async def check_user_id_registered(user_id: int) -> bool:
     return user_id in user_ids

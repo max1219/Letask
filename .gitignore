@@ -1,5 +1,6 @@
 *.db
 test.py
+logs/
 .idea/sqldialects.xml
 
 # Byte-compiled / optimized / DLL files

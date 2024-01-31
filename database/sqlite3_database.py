@@ -53,6 +53,12 @@ class Sqlite3Database(IDatabase):
         self._cur.execute("DELETE FROM question WHERE questioner_message_id == ?", (questioner_message_id,))
         self._db.commit()
 
+    async def get_question_by_recipient_message_id(self, recipient_message_id: int) -> Question:
+        res = self._cur.execute(
+            """SELECT questioner_message_id, questioner_chat_id, recipient_message_id, recipient_chat_id, text 
+            FROM question WHERE recipient_message_id == ?""", (recipient_message_id,)).fetchone()
+        return Question(*res) if res is not None else None
+
     async def update_recipient_message_id(self, question: Question) -> None:
         self._cur.execute("UPDATE question SET recipient_message_id=? WHERE questioner_message_id=?",
                           (question.recipient_message_id, question.questioner_message_id))

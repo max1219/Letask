@@ -33,6 +33,10 @@ class IDatabase(ABC):
         pass
 
     @abstractmethod
+    async def get_question_by_recipient_message_id(self, recipient_message_id: int) -> Question:
+        pass
+
+    @abstractmethod
     async def update_recipient_message_id(self, question: Question) -> None:
         pass
 

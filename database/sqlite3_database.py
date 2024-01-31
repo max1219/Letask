@@ -33,6 +33,9 @@ class Sqlite3Database(IDatabase):
         self._cur.execute("INSERT INTO user (user_id, username) VALUES (?, ?)", (user_id, username))
         self._db.commit()
 
+    async def get_user_id(self, username: str) -> int:
+        return self._cur.execute("SELECT user_id FROM user WHERE username == ?", (username,)).fetchone()
+
     async def get_user_questions(self, user_id: int) -> Iterable[Question]:
         raws: Iterable[list[int | str]] = self._cur.execute(
             """SELECT questioner_message_id, questioner_chat_id, recipient_message_id, recipient_chat_id, text 

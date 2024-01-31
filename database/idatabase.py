@@ -21,6 +21,10 @@ class IDatabase(ABC):
         pass
 
     @abstractmethod
+    async def get_user_id(self, username: str) -> int:
+        pass
+
+    @abstractmethod
     async def get_user_questions(self, user_id: int) -> Iterable[Question]:
         pass
 

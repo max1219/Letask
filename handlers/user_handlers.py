@@ -4,7 +4,7 @@ from aiogram.filters import Command, StateFilter
 
 from keyboards.keyboards import menu_kb
 from services import quests_answers_sender
-from data import database_processor
+from database import IDatabase
 from lexicon import lexicon
 from services.question import Question
 from states.states import AskingStates
@@ -37,8 +37,8 @@ async def process_my_questions(message: Message, bot: Bot) -> None:
 
 
 @router.message(F.reply_to_message)
-async def handle_answering(message: Message, bot: Bot) -> None:
-    question: Question = await database_processor.get_question_from_reply(message.chat.id, message.reply_to_message)
+async def handle_answering(message: Message, bot: Bot, database: IDatabase) -> None:
+    question: Question = await database.get_question_by_recipient_message_id(message.message_id)
     if question:
         await quests_answers_sender.send_answer(bot, message, question)
         await message.answer(lexicon.ANSWERS['success_answer'])

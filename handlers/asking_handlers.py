@@ -7,14 +7,14 @@ from aiogram.fsm.context import FSMContext
 from keyboards import keyboards
 from services import quests_answers_sender
 from keyboards.keyboards import menu_kb
-from data import database
+from database import IDatabase
 
 router: Router = Router()
 router.message.filter(StateFilter(*AskingStates.get_states()))
 
 
 @router.message(StateFilter(AskingStates.fill_username), F.text.startswith('@'))
-async def fill_username(message: Message, state: FSMContext) -> None:
+async def fill_username(message: Message, state: FSMContext, database: IDatabase) -> None:
     username: str = message.text.lower()
     if username[1:] == message.from_user.username:
         await message.answer_photo(photo=lexicon.PHOTOS['dont_ask_yourself'],
@@ -54,11 +54,11 @@ async def wrong_answer(message: Message) -> None:
 
 
 @router.callback_query(StateFilter(AskingStates.confirming))
-async def confirm(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    if callback.data == 'confirm_send':
-        username_text_dict: dict = await state.get_data()
-        question_text = username_text_dict['text']
-        username = username_text_dict['username']
+async def confirm(callback: CallbackQuery, bot: Bot, state: FSMContext, database: IDatabase) -> None:
+    if callback.data == 'yes':
+        context: dict = await state.get_data()
+        question_text = context['text']
+        username = context['username']
         user_id = await database.get_user_id(username[1:])
         is_success = await quests_answers_sender.send_question(bot, user_id, question_text,
                                                                callback.message)

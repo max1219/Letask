@@ -3,9 +3,10 @@ import logging
 import sys
 
 from config_data import Config, DotenvConfigLoader
-#from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher
+from database import IDatabase, Sqlite3Database
 #from handlers import user_handlers, asking_handlers
-#from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.memory import MemoryStorage
 #from middlewares.registered_checker_middleware import RegisteredCheckerMiddleware
 
 
@@ -22,10 +23,15 @@ async def main() -> None:
     logging.info("Start of initialization")
 
     config: Config = DotenvConfigLoader().load_config()
-    #storage: MemoryStorage = MemoryStorage()
+    # todo заменить на другое хранилище
+    storage: MemoryStorage = MemoryStorage()
 
-    #bot: Bot = Bot(config.bot.token)
-    #dp: Dispatcher = Dispatcher(storage=storage)
+    bot: Bot = Bot(config.bot.token)
+    dp: Dispatcher = Dispatcher(storage=storage)
+
+    database: IDatabase = Sqlite3Database()
+    dp["database"] = database
+
     #dp.update.outer_middleware(RegisteredCheckerMiddleware())
 
     #dp.include_router(asking_handlers.router)

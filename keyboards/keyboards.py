@@ -11,8 +11,8 @@ menu_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
 
 yes_no_inline_kb: InlineKeyboardMarkup = InlineKeyboardMarkup(
     inline_keyboard=[[
-        InlineKeyboardButton(text=lexicon.BUTTONS['yes'], callback_data='confirm_send'),
-        InlineKeyboardButton(text=lexicon.BUTTONS['no'], callback_data='dont_confirm_send')
+        InlineKeyboardButton(text=lexicon.BUTTONS['yes'], callback_data='yes'),
+        InlineKeyboardButton(text=lexicon.BUTTONS['no'], callback_data='no')
     ]]
 )
 

@@ -7,7 +7,7 @@ from services import quests_answers_sender
 from database import IDatabase
 from lexicon import lexicon
 from services.question import Question
-from states.states import AskingStates
+from states.asking_states import AskingStates
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 

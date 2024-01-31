@@ -2,7 +2,7 @@ from aiogram import Router, Bot, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import StateFilter
 from lexicon import lexicon
-from states.states import AskingStates
+from states.asking_states import AskingStates
 from aiogram.fsm.context import FSMContext
 from keyboards import keyboards
 from services import quests_answers_sender

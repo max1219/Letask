@@ -5,9 +5,9 @@ import sys
 from config_data import Config, DotenvConfigLoader
 from aiogram import Bot, Dispatcher
 from database import IDatabase, Sqlite3Database
-#from handlers import user_handlers, asking_handlers
+from handlers import user_handlers, asking_handlers
 from aiogram.fsm.storage.memory import MemoryStorage
-#from middlewares.registered_checker_middleware import RegisteredCheckerMiddleware
+from middlewares.registered_checker_middleware import RegisteredCheckerMiddleware
 
 
 async def main() -> None:
@@ -32,14 +32,14 @@ async def main() -> None:
     database: IDatabase = Sqlite3Database()
     dp["database"] = database
 
-    #dp.update.outer_middleware(RegisteredCheckerMiddleware())
+    dp.update.outer_middleware(RegisteredCheckerMiddleware())
 
-    #dp.include_router(asking_handlers.router)
-    #dp.include_router(user_handlers.router)
+    dp.include_router(asking_handlers.router)
+    dp.include_router(user_handlers.router)
 
-    #await bot.delete_webhook(drop_pending_updates=True)
-    #await dp.start_polling(bot)
-    #logging.info("Bot started")
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
+    logging.info("Bot started")
 
 if __name__ == '__main__':
     asyncio.run(main())

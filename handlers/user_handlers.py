@@ -1,5 +1,5 @@
 from aiogram import Router, F, Bot
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.filters import Command, StateFilter
 
 from keyboards.keyboards import menu_kb
@@ -32,15 +32,15 @@ async def process_ask(message: Message, state: FSMContext) -> None:
 
 
 @router.message(F.text == lexicon.BUTTONS['my_questions'])
-async def process_my_questions(message: Message, bot: Bot) -> None:
-    await quests_answers_sender.resend_questions(bot, message.from_user.id)
+async def process_my_questions(message: Message, bot: Bot, database: IDatabase) -> None:
+    await quests_answers_sender.resend_questions(bot, message.from_user.id, database)
 
 
 @router.message(F.reply_to_message)
 async def handle_answering(message: Message, bot: Bot, database: IDatabase) -> None:
-    question: Question = await database.get_question_by_recipient_message_id(message.message_id)
+    question: Question = await database.get_question_by_recipient_message_id(message.reply_to_message.message_id)
     if question:
-        await quests_answers_sender.send_answer(bot, message, question)
+        await quests_answers_sender.send_answer(bot, message, question, database)
         await message.answer(lexicon.ANSWERS['success_answer'])
     else:
         await message.answer(lexicon.ANSWERS['is_not_question'])
@@ -48,4 +48,9 @@ async def handle_answering(message: Message, bot: Bot, database: IDatabase) -> N
 
 @router.message()
 async def handle_unknown_message(message: Message) -> None:
-    await message.answer(lexicon.ANSWERS['unknown'])
+    await message.answer(lexicon.ANSWERS['unknown'], reply_markup=menu_kb)
+
+
+@router.callback_query()
+async def handle_unknown_message(callback: CallbackQuery) -> None:
+    await callback.answer(lexicon.ANSWERS['unknown'], reply_markup=menu_kb)

@@ -1,4 +1,5 @@
 import sqlite3
+import logging
 
 from typing import Iterable
 
@@ -34,7 +35,7 @@ class Sqlite3Database(IDatabase):
         self._db.commit()
 
     async def get_user_id(self, username: str) -> int:
-        return self._cur.execute("SELECT user_id FROM user WHERE username == ?", (username,)).fetchone()
+        return self._cur.execute("SELECT user_id FROM user WHERE username == ?", (username,)).fetchone()[0]
 
     async def get_user_questions(self, user_id: int) -> Iterable[Question]:
         raws: Iterable[list[int | str]] = self._cur.execute(
@@ -51,6 +52,7 @@ class Sqlite3Database(IDatabase):
                            question.recipient_chat_id,
                            question.text))
         self._db.commit()
+        logging.info(f'Added question {question}')
 
     async def remove_question(self, questioner_message_id: int) -> None:
         self._cur.execute("DELETE FROM question WHERE questioner_message_id == ?", (questioner_message_id,))
@@ -60,6 +62,7 @@ class Sqlite3Database(IDatabase):
         res = self._cur.execute(
             """SELECT questioner_message_id, questioner_chat_id, recipient_message_id, recipient_chat_id, text 
             FROM question WHERE recipient_message_id == ?""", (recipient_message_id,)).fetchone()
+        logging.info(f'Try get question by id {recipient_message_id}. Success: {recipient_message_id is not None}')
         return Question(*res) if res is not None else None
 
     async def update_recipient_message_id(self, question: Question) -> None:

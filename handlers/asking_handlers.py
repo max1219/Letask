@@ -61,7 +61,7 @@ async def confirm(callback: CallbackQuery, bot: Bot, state: FSMContext, database
         username = context['username']
         user_id = await database.get_user_id(username[1:])
         is_success = await quests_answers_sender.send_question(bot, user_id, question_text,
-                                                               callback.message)
+                                                               callback.message, database)
         await callback.message.answer(lexicon.ANSWERS['success_question' if is_success else 'cant_ask'],
                                       reply_markup=menu_kb)
     else:

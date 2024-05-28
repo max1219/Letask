@@ -52,5 +52,5 @@ async def handle_unknown_message(message: Message) -> None:
 
 
 @router.callback_query()
-async def handle_unknown_message(callback: CallbackQuery) -> None:
+async def handle_unknown_callback(callback: CallbackQuery) -> None:
     await callback.answer(lexicon.ANSWERS['unknown'], reply_markup=menu_kb)

@@ -25,7 +25,7 @@ async def process_start_help(message: Message) -> None:
     await message.answer(lexicon.ANSWERS['rules'], reply_markup=menu_kb)
 
 
-@router.message(F.text == lexicon.BUTTONS['aks'])
+@router.message(F.text == lexicon.BUTTONS['ask'])
 async def process_ask(message: Message, state: FSMContext) -> None:
     await state.set_state(AskingStates.fill_username)
     await message.answer(lexicon.ANSWERS['write_recipient'], reply_markup=ReplyKeyboardRemove())
@@ -36,7 +36,7 @@ async def process_my_questions(message: Message, bot: Bot, database: IDatabase) 
     await quests_answers_sender.resend_questions(bot, message.from_user.id, database)
 
 
-@router.message(F.reply_to_message)
+@router.message(F.reply_to_message, F.text)
 async def handle_answering(message: Message, bot: Bot, database: IDatabase) -> None:
     question: Question = await database.get_question_by_recipient_message_id(message.reply_to_message.message_id)
     if question:
@@ -44,6 +44,11 @@ async def handle_answering(message: Message, bot: Bot, database: IDatabase) -> N
         await message.answer(lexicon.ANSWERS['success_answer'])
     else:
         await message.answer(lexicon.ANSWERS['is_not_question'])
+
+
+@router.message(F.reply_to_message)
+async def handle_answering_without_text(message: Message) -> None:
+    await message.answer(lexicon.ANSWERS['cannot_send_without_text'])
 
 
 @router.message()

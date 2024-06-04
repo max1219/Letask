@@ -37,7 +37,7 @@ async def wrong_username_format(message: Message, state: FSMContext) -> None:
     await message.answer(lexicon.ANSWERS['wrong_username_format'], reply_markup=menu_kb)
 
 
-@router.message(StateFilter(AskingStates.fill_text))
+@router.message(StateFilter(AskingStates.fill_text), F.text)
 async def fill_text(message: Message, state: FSMContext) -> None:
     await state.set_state(AskingStates.confirming)
     await state.update_data(text=message.text)
@@ -48,12 +48,14 @@ async def fill_text(message: Message, state: FSMContext) -> None:
     await message.answer(answer_text, reply_markup=keyboards.yes_no_inline_kb)
 
 
-@router.message()
-async def wrong_answer(message: Message) -> None:
-    await message.answer(lexicon.ANSWERS['unknown'])
+@router.message(StateFilter(AskingStates.fill_text))
+async def fill_text_without_text(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    await message.answer(text=lexicon.ANSWERS['cannot_send_without_text'], reply_markup=menu_kb)
 
 
-@router.callback_query(StateFilter(AskingStates.confirming))
+# todo проверить введенный фильтр на yes no
+@router.callback_query(StateFilter(AskingStates.confirming), F.data.in_({'yes', 'no'}))
 async def confirm(callback: CallbackQuery, bot: Bot, state: FSMContext, database: IDatabase) -> None:
     if callback.data == 'yes':
         context: dict = await state.get_data()
@@ -68,3 +70,13 @@ async def confirm(callback: CallbackQuery, bot: Bot, state: FSMContext, database
         await callback.message.answer(text=lexicon.ANSWERS['ok_dont_send'], reply_markup=menu_kb)
     await callback.message.delete_reply_markup()
     await state.clear()
+
+
+@router.message()
+async def wrong_answer(message: Message) -> None:
+    await message.answer(lexicon.ANSWERS['unknown'])
+
+
+@router.callback_query()
+async def handle_unknown_callback(callback: CallbackQuery) -> None:
+    await callback.answer(lexicon.ANSWERS['unknown'], reply_markup=menu_kb)

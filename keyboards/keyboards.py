@@ -3,7 +3,7 @@ from lexicon import lexicon
 
 menu_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
     keyboard=[[
-        KeyboardButton(text=lexicon.BUTTONS['aks']),
+        KeyboardButton(text=lexicon.BUTTONS['ask']),
         KeyboardButton(text=lexicon.BUTTONS['my_questions'])
     ]],
     resize_keyboard=True

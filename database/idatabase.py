@@ -6,7 +6,7 @@ from services.question import Question
 
 class IDatabase(ABC):
     # User(user_id PK, username)
-    # Question(questioner_message_id PK, questioner_chat_id FK, recipient_message_id, recipient_chat_id FK, text)
+    # Question(questioner_message_id PK, questioner_chat_id, recipient_message_id, recipient_chat_id, text)
 
     @abstractmethod
     async def check_id_registered(self, user_id: int) -> bool:
